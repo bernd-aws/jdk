@@ -26,13 +26,13 @@
 #define SHARE_GC_SHENANDOAH_SHENANDOAHBARRIERSET_HPP
 
 #include "gc/shared/accessBarrierSupport.hpp"
-#include "gc/shared/barrierSet.hpp"
+#include "gc/shared/cardTableBarrierSet.hpp"
 #include "gc/shenandoah/shenandoahHeap.hpp"
 #include "gc/shenandoah/shenandoahSATBMarkQueueSet.hpp"
 
 class ShenandoahBarrierSetAssembler;
 
-class ShenandoahBarrierSet: public BarrierSet {
+class ShenandoahBarrierSet: public CardTableBarrierSet {
 private:
 
   ShenandoahHeap* _heap;

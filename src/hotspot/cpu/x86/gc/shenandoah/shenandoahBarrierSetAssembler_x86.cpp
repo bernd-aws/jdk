@@ -607,7 +607,7 @@ void ShenandoahBarrierSetAssembler::store_at(MacroAssembler* masm, DecoratorSet 
       BarrierSetAssembler::store_at(masm, decorators, type, Address(tmp1, 0), val, noreg, noreg);
     } else {
       storeval_barrier(masm, val, tmp3);
-      BarrierSetAssembler::store_at(masm, decorators, type, Address(tmp1, 0), val, noreg, noreg);
+      oop_store_at(masm, decorators, type, Address(tmp1, 0), val, noreg, noreg);
     }
     NOT_LP64(imasm->restore_bcp());
   } else {

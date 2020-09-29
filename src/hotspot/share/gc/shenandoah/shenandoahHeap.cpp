@@ -34,6 +34,7 @@
 #include "gc/shared/plab.hpp"
 
 #include "gc/shenandoah/shenandoahBarrierSet.hpp"
+#include "gc/shenandoah/shenandoahCardTable.hpp"
 #include "gc/shenandoah/shenandoahClosures.inline.hpp"
 #include "gc/shenandoah/shenandoahCollectionSet.hpp"
 #include "gc/shenandoah/shenandoahCollectorPolicy.hpp"
@@ -200,6 +201,31 @@ jint ShenandoahHeap::initialize() {
   if (!_heap_region_special) {
     os::commit_memory_or_exit(sh_rs.base(), _initial_size, heap_alignment, false,
                               "Cannot commit heap memory");
+  }
+
+  //
+  // After reserving the Java heap, create the card table, barriers, and workers, in dependency order
+  //
+
+  _cardTable = new ShenandoahCardTable(_heap_region);
+  _cardTable->initialize();
+  BarrierSet::set_barrier_set(new ShenandoahBarrierSet(this));
+
+  _workers = new ShenandoahWorkGang("Shenandoah GC Threads", _max_workers,
+                            /* are_GC_task_threads */ true,
+                            /* are_ConcurrentGC_threads */ true);
+  if (_workers == NULL) {
+    vm_exit_during_initialization("Failed necessary allocation.");
+  } else {
+    _workers->initialize_workers();
+  }
+
+  if (ParallelGCThreads > 1) {
+    _safepoint_workers = new ShenandoahWorkGang("Safepoint Cleanup Thread",
+                                                ParallelGCThreads,
+                      /* are_GC_task_threads */ false,
+                 /* are_ConcurrentGC_threads */ false);
+    _safepoint_workers->initialize_workers();
   }
 
   //
@@ -452,7 +478,7 @@ ShenandoahHeap::ShenandoahHeap(ShenandoahCollectorPolicy* policy) :
   _used(0),
   _committed(0),
   _bytes_allocated_since_gc_start(0),
-  _max_workers(MAX2(ConcGCThreads, ParallelGCThreads)),
+  _max_workers(MAX3(ConcGCThreads, ParallelGCThreads, 1U)),
   _workers(NULL),
   _safepoint_workers(NULL),
   _heap_region_special(false),
@@ -483,27 +509,9 @@ ShenandoahHeap::ShenandoahHeap(ShenandoahCollectorPolicy* policy) :
   _bitmap_region_special(false),
   _aux_bitmap_region_special(false),
   _liveness_cache(NULL),
-  _collection_set(NULL)
+  _collection_set(NULL),
+  _cardTable(NULL)
 {
-  BarrierSet::set_barrier_set(new ShenandoahBarrierSet(this));
-
-  _max_workers = MAX2(_max_workers, 1U);
-  _workers = new ShenandoahWorkGang("Shenandoah GC Threads", _max_workers,
-                            /* are_GC_task_threads */ true,
-                            /* are_ConcurrentGC_threads */ true);
-  if (_workers == NULL) {
-    vm_exit_during_initialization("Failed necessary allocation.");
-  } else {
-    _workers->initialize_workers();
-  }
-
-  if (ParallelGCThreads > 1) {
-    _safepoint_workers = new ShenandoahWorkGang("Safepoint Cleanup Thread",
-                                                ParallelGCThreads,
-                      /* are_GC_task_threads */ false,
-                 /* are_ConcurrentGC_threads */ false);
-    _safepoint_workers->initialize_workers();
-  }
 }
 
 #ifdef _MSC_VER

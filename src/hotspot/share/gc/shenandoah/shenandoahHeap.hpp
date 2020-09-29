@@ -30,6 +30,7 @@
 #include "gc/shared/collectedHeap.hpp"
 #include "gc/shenandoah/shenandoahAsserts.hpp"
 #include "gc/shenandoah/shenandoahAllocRequest.hpp"
+#include "gc/shenandoah/shenandoahCardTable.hpp"
 #include "gc/shenandoah/shenandoahLock.hpp"
 #include "gc/shenandoah/shenandoahEvacOOMHandler.hpp"
 #include "gc/shenandoah/shenandoahPadding.hpp"
@@ -697,6 +698,16 @@ public:
   // Call before/after evacuation.
   inline void enter_evacuation(Thread* t);
   inline void leave_evacuation(Thread* t);
+
+
+// ---------- Generational support
+//
+private:
+  ShenandoahCardTable* _cardTable;
+
+public:
+  inline CardTable* cardTable()  { return _cardTable; }
+
 
 // ---------- Helper functions
 //

@@ -26,7 +26,7 @@
 #define SHARE_GC_SHENANDOAH_C1_SHENANDOAHBARRIERSETC1_HPP
 
 #include "c1/c1_CodeStubs.hpp"
-#include "gc/shared/c1/barrierSetC1.hpp"
+#include "gc/shared/c1/cardTableBarrierSetC1.hpp"
 
 class ShenandoahPreBarrierStub: public CodeStub {
   friend class ShenandoahBarrierSetC1;
@@ -187,13 +187,13 @@ public:
 #endif // PRODUCT
 };
 
-class ShenandoahBarrierSetC1 : public BarrierSetC1 {
+class ShenandoahBarrierSetC1 : public CardTableBarrierSetC1 {
 private:
   CodeBlob* _pre_barrier_c1_runtime_code_blob;
   CodeBlob* _load_reference_barrier_rt_code_blob;
   CodeBlob* _load_reference_barrier_native_rt_code_blob;
 
-  void pre_barrier(LIRGenerator* gen, CodeEmitInfo* info, DecoratorSet decorators, LIR_Opr addr_opr, LIR_Opr pre_val);
+  void satb_barrier(LIRGenerator* gen, CodeEmitInfo* info, DecoratorSet decorators, LIR_Opr addr_opr, LIR_Opr pre_val);
 
   LIR_Opr load_reference_barrier(LIRGenerator* gen, LIR_Opr obj, LIR_Opr addr, bool is_native);
   LIR_Opr storeval_barrier(LIRGenerator* gen, LIR_Opr obj, CodeEmitInfo* info, DecoratorSet decorators);
