@@ -23,6 +23,7 @@
  */
 
 #include "precompiled.hpp"
+#include "gc/shared/memset_with_concurrent_readers.hpp"
 #include "gc/shenandoah/shenandoahCardTable.hpp"
 #include "logging/log.hpp"
 

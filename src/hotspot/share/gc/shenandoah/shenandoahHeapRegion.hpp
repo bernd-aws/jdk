@@ -245,7 +245,7 @@ private:
 
   HeapWord* volatile _update_watermark;
 
-  ShenandoahGeneration _generation;
+  ShenandoahGenerationAffiliation _affiliation;
 
 public:
   ShenandoahHeapRegion(HeapWord* start, size_t index, bool committed);
@@ -388,13 +388,11 @@ public:
   inline void set_update_watermark(HeapWord* w);
   inline void set_update_watermark_at_safepoint(HeapWord* w);
 
-  ShenandoahGeneration generation() const {
-    return _generation;
+  ShenandoahGenerationAffiliation affiliation() const {
+    return _affiliation;
   }
 
-  void set_generation(ShenandoahGeneration generation) {
-    _generation = generation;
-  }
+  void set_affiliation(ShenandoahGenerationAffiliation new_affiliation);
 
 private:
   void do_commit();
@@ -406,6 +404,8 @@ private:
   inline void internal_increase_live_data(size_t s);
 
   void set_state(RegionState to);
+
+  void update_old_gen_card_values(ShenandoahCardTable* card_table);
 };
 
 #endif // SHARE_GC_SHENANDOAH_SHENANDOAHHEAPREGION_HPP

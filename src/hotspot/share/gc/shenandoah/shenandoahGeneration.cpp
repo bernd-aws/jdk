@@ -22,26 +22,4 @@
  *
  */
 
-#ifndef SHARE_VM_GC_SHENANDOAH_SHENANDOAHCARDTABLE_HPP
-#define SHARE_VM_GC_SHENANDOAH_SHENANDOAHCARDTABLE_HPP
-
-#include "gc/g1/g1RegionToSpaceMapper.hpp"
-#include "gc/shared/cardTable.hpp"
-#include "oops/oopsHierarchy.hpp"
-#include "utilities/macros.hpp"
-
-class ShenandoahCardTable: public CardTable {
-  friend class VMStructs;
-
-public:
-  ShenandoahCardTable(MemRegion whole_heap): CardTable(whole_heap, /* conc_scan */ false) { }
-
-  virtual void initialize();
-
-  inline virtual bool is_in_young(oop obj) const {
-    ShouldNotReachHere();
-    return false;
-  }
-};
-
-#endif // SHARE_VM_GC_SHENANDOAH_SHENANDOAHCARDTABLE_HPP
+#include "gc/shenandoah/shenandoahGeneration.hpp"

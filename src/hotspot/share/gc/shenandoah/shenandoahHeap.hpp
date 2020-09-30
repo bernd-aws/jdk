@@ -545,6 +545,8 @@ public:
 
   bool is_in(const void* p) const;
 
+  bool is_in_young(const void* p) const;
+
   MemRegion reserved_region() const { return _reserved; }
   bool is_in_reserved(const void* addr) const { return _reserved.contains(addr); }
 
@@ -699,15 +701,13 @@ public:
   inline void enter_evacuation(Thread* t);
   inline void leave_evacuation(Thread* t);
 
-
 // ---------- Generational support
 //
 private:
   ShenandoahCardTable* _card_table;
 
 public:
-  inline CardTable* card_table()  { return _card_table; }
-
+  inline ShenandoahCardTable* card_table()  { return _card_table; }
 
 // ---------- Helper functions
 //
