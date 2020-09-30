@@ -67,7 +67,7 @@ ShenandoahHeapRegion::ShenandoahHeapRegion(HeapWord* start, size_t index, bool c
   _live_data(0),
   _critical_pins(0),
   _update_watermark(start),
-  _affiliation(ShenandoahGenerationAffiliation::FREE) {
+  _affiliation(ShenandoahRegionAffiliation::FREE) {
 
   assert(Universe::on_page_boundary(_bottom) && Universe::on_page_boundary(_end),
          "invalid space boundaries");
@@ -363,13 +363,13 @@ void ShenandoahHeapRegion::print_on(outputStream* st) const {
       ShouldNotReachHere();
   }
   switch (_affiliation) {
-    case ShenandoahGenerationAffiliation::FREE:
+    case ShenandoahRegionAffiliation::FREE:
       st->print("|F");
       break;
-    case ShenandoahGenerationAffiliation::YOUNG_GENERATION:
+    case ShenandoahRegionAffiliation::YOUNG_GENERATION:
       st->print("|Y");
       break;
-    case ShenandoahGenerationAffiliation::OLD_GENERATION:
+    case ShenandoahRegionAffiliation::OLD_GENERATION:
       st->print("|O");
       break;
     default:
@@ -444,7 +444,7 @@ void ShenandoahHeapRegion::recycle() {
   set_update_watermark(bottom());
 
   make_empty();
-  _affiliation = ShenandoahGenerationAffiliation::FREE;
+  _affiliation = ShenandoahRegionAffiliation::FREE;
 
   if (ZapUnusedHeapArea) {
     SpaceMangler::mangle_region(MemRegion(bottom(), end()));
@@ -723,19 +723,19 @@ void ShenandoahHeapRegion::update_old_gen_card_values(ShenandoahCardTable* card_
   oop_iterate(&object_closure);
 }
 
-void ShenandoahHeapRegion::set_affiliation(ShenandoahGenerationAffiliation new_affiliation) {
+void ShenandoahHeapRegion::set_affiliation(ShenandoahRegionAffiliation new_affiliation) {
   if (_affiliation == new_affiliation) {
     return;
   }
   ShenandoahCardTable* card_table = ShenandoahHeap::heap()->card_table();
   switch (new_affiliation) {
-    case ShenandoahGenerationAffiliation::FREE:
+    case ShenandoahRegionAffiliation::FREE:
       card_table->clear_MemRegion(MemRegion(_bottom, _end));
       break;
-    case ShenandoahGenerationAffiliation::YOUNG_GENERATION:
+    case ShenandoahRegionAffiliation::YOUNG_GENERATION:
       break;
-    case ShenandoahGenerationAffiliation::OLD_GENERATION:
-      if (_affiliation == ShenandoahGenerationAffiliation::YOUNG_GENERATION) {
+    case ShenandoahRegionAffiliation::OLD_GENERATION:
+      if (_affiliation == ShenandoahRegionAffiliation::YOUNG_GENERATION) {
         update_old_gen_card_values(card_table);
       }
       break;
