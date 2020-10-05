@@ -96,6 +96,11 @@ public:
   oop load_reference_barrier_native(oop obj, oop* load_addr);
   oop load_reference_barrier_native(oop obj, narrowOop* load_addr);
 
+  template <DecoratorSet decorators, typename T>
+  void write_ref_field_post(T* field, oop newVal);
+
+  virtual void write_ref_array_work(MemRegion mr);
+
 private:
   template <class T>
   inline void arraycopy_marking(T* src, T* dst, size_t count);

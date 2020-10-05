@@ -35,6 +35,7 @@
 #include "gc/shenandoah/shenandoahHeapRegion.hpp"
 #include "gc/shenandoah/shenandoahMarkingContext.inline.hpp"
 #include "gc/shenandoah/shenandoahThreadLocalData.hpp"
+#include "gc/shenandoah/mode/shenandoahMode.hpp"
 #include "memory/iterator.inline.hpp"
 #include "oops/oop.inline.hpp"
 
@@ -132,6 +133,13 @@ inline void ShenandoahBarrierSet::keep_alive_if_weak(oop value) {
   if (!HasDecorator<decorators, ON_STRONG_OOP_REF>::value &&
       !HasDecorator<decorators, AS_NO_KEEPALIVE>::value) {
     satb_enqueue(value);
+  }
+}
+
+template <DecoratorSet decorators, typename T>
+inline void ShenandoahBarrierSet::write_ref_field_post(T* field, oop newVal) {
+  if (ShenandoahHeap::heap()->mode()->is_generational()) {
+    CardTableBarrierSet::write_ref_field_post<decorators, T>(field, newVal);
   }
 }
 

@@ -63,7 +63,8 @@ ShenandoahBarrierSet::ShenandoahBarrierSet(ShenandoahHeap* heap) :
   _satb_mark_queue_buffer_allocator("SATB Buffer Allocator", ShenandoahSATBBufferSize),
   _satb_mark_queue_set(&_satb_mark_queue_buffer_allocator)
 {
-  assert(heap->card_table() != NULL, "card table must be present before creating barrier set");
+  assert(heap->mode()->is_generational() == (heap->card_table() != NULL),
+         "the heap's having a card table does not match the GC mode being generational");
 }
 
 ShenandoahBarrierSetAssembler* ShenandoahBarrierSet::assembler() {
@@ -217,6 +218,12 @@ oop ShenandoahBarrierSet::load_reference_barrier_native_impl(oop obj, T* load_ad
 void ShenandoahBarrierSet::clone_barrier_runtime(oop src) {
   if (_heap->has_forwarded_objects() || (ShenandoahStoreValEnqueueBarrier && _heap->is_concurrent_mark_in_progress())) {
     clone_barrier(src);
+  }
+}
+
+void ShenandoahBarrierSet::write_ref_array_work(MemRegion mr) {
+  if (_heap->mode()->is_generational()) {
+    CardTableBarrierSet::write_ref_array_work(mr);
   }
 }
 

@@ -25,6 +25,7 @@
 #include "precompiled.hpp"
 #include "c1/c1_IR.hpp"
 #include "gc/shared/satbMarkQueue.hpp"
+#include "gc/shenandoah/mode/shenandoahMode.hpp"
 #include "gc/shenandoah/shenandoahBarrierSet.hpp"
 #include "gc/shenandoah/shenandoahBarrierSetAssembler.hpp"
 #include "gc/shenandoah/shenandoahHeap.inline.hpp"
@@ -288,5 +289,11 @@ void ShenandoahBarrierSetC1::generate_c1_runtime_stubs(BufferBlob* buffer_blob) 
     _load_reference_barrier_native_rt_code_blob = Runtime1::generate_blob(buffer_blob, -1,
                                                                    "shenandoah_load_reference_barrier_native_slow",
                                                                    false, &lrb_native_code_gen_cl);
+  }
+}
+
+void ShenandoahBarrierSetC1::post_barrier(LIRAccess& access, LIR_OprDesc* addr, LIR_OprDesc* new_val) {
+  if (ShenandoahHeap::heap()->mode()->is_generational()) {
+    CardTableBarrierSetC1::post_barrier(access, addr, new_val);
   }
 }

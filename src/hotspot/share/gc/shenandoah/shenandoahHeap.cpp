@@ -208,8 +208,10 @@ jint ShenandoahHeap::initialize() {
   // After reserving the Java heap, create the card table, barriers, and workers, in dependency order
   //
 
-  _card_table = new ShenandoahCardTable(_heap_region);
-  _card_table->initialize();
+  if (mode()->is_generational()) {
+    _card_table = new ShenandoahCardTable(_heap_region);
+    _card_table->initialize();
+  }
   BarrierSet::set_barrier_set(new ShenandoahBarrierSet(this));
 
   _workers = new ShenandoahWorkGang("Shenandoah GC Threads", _max_workers,

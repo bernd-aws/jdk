@@ -101,6 +101,16 @@ protected:
                                                 Node* new_val, const Type* value_type) const;
   virtual Node* atomic_xchg_at_resolved(C2AtomicParseAccess& access, Node* new_val, const Type* val_type) const;
 
+  virtual void post_barrier(GraphKit* kit,
+                            Node* ctl,
+                            Node* store,
+                            Node* obj,
+                            Node* adr,
+                            uint adr_idx,
+                            Node* val,
+                            BasicType bt,
+                            bool use_precise) const;
+
 public:
   static ShenandoahBarrierSetC2* bsc2();
 

@@ -32,6 +32,7 @@
 #include "gc/shenandoah/c2/shenandoahBarrierSetC2.hpp"
 #include "gc/shenandoah/c2/shenandoahSupport.hpp"
 #include "gc/shenandoah/heuristics/shenandoahHeuristics.hpp"
+#include "gc/shenandoah/mode/shenandoahMode.hpp"
 #include "opto/arraycopynode.hpp"
 #include "opto/escape.hpp"
 #include "opto/graphKit.hpp"
@@ -735,6 +736,20 @@ Node* ShenandoahBarrierSetC2::atomic_xchg_at_resolved(C2AtomicParseAccess& acces
   return result;
 }
 
+void ShenandoahBarrierSetC2::post_barrier(GraphKit* kit,
+                                          Node* ctl,
+                                          Node* oop_store,
+                                          Node* obj,
+                                          Node* adr,
+                                          uint  adr_idx,
+                                          Node* val,
+                                          BasicType bt,
+                                          bool use_precise) const {
+  if (ShenandoahHeap::heap()->mode()->is_generational()) {
+    CardTableBarrierSetC2::post_barrier(kit, ctl, oop_store, obj, adr, adr_idx, val, bt, use_precise);
+  }
+}
+
 // Support for GC barriers emitted during parsing
 bool ShenandoahBarrierSetC2::is_gc_barrier_node(Node* node) const {
   if (node->Opcode() == Op_ShenandoahLoadReferenceBarrier) return true;
@@ -928,7 +943,7 @@ void ShenandoahBarrierSetC2::eliminate_gc_barrier(PhaseMacroExpand* macro, Node*
   if (is_shenandoah_wb_pre_call(n)) {
     shenandoah_eliminate_wb_pre(n, &macro->igvn());
   }
-  if (n->Opcode() == Op_CastP2X) {
+  if (n->Opcode() == Op_CastP2X && ShenandoahHeap::heap()->mode()->is_generational()) {
     CardTableBarrierSetC2::eliminate_gc_barrier(macro, n);
   }
 }
