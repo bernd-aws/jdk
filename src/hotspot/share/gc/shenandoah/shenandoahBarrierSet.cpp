@@ -57,13 +57,13 @@ ShenandoahBarrierSet::ShenandoahBarrierSet(ShenandoahHeap* heap) :
                        make_barrier_set_c1<ShenandoahBarrierSetC1>(),
                        make_barrier_set_c2<ShenandoahBarrierSetC2>(),
                        make_barrier_set_nmethod(heap),
-                       heap->cardTable(),
+                       heap->card_table(),
                        BarrierSet::FakeRtti(BarrierSet::ShenandoahBarrierSet)),
   _heap(heap),
   _satb_mark_queue_buffer_allocator("SATB Buffer Allocator", ShenandoahSATBBufferSize),
   _satb_mark_queue_set(&_satb_mark_queue_buffer_allocator)
 {
-  assert(heap->cardTable() != NULL, "card table must be present before creating barrier set");
+  assert(heap->card_table() != NULL, "card table must be present before creating barrier set");
 }
 
 ShenandoahBarrierSetAssembler* ShenandoahBarrierSet::assembler() {

@@ -703,10 +703,10 @@ public:
 // ---------- Generational support
 //
 private:
-  ShenandoahCardTable* _cardTable;
+  ShenandoahCardTable* _card_table;
 
 public:
-  inline CardTable* cardTable()  { return _cardTable; }
+  inline CardTable* card_table()  { return _card_table; }
 
 
 // ---------- Helper functions
