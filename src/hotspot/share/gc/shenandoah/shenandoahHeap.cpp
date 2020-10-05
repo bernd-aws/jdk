@@ -213,7 +213,12 @@ jint ShenandoahHeap::initialize() {
   if (mode()->is_generational()) {
     _card_table = new ShenandoahCardTable(_heap_region);
     _card_table->initialize();
+  } else {
+    // A minimal card table that does not support card marking,
+    // but still complies with general query methods which we do not modify for non-generational mode.
+    _card_table = new ShenandoahCardTable(MemRegion());
   }
+
   BarrierSet::set_barrier_set(new ShenandoahBarrierSet(this));
 
   _workers = new ShenandoahWorkGang("Shenandoah GC Threads", _max_workers,

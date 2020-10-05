@@ -63,8 +63,7 @@ ShenandoahBarrierSet::ShenandoahBarrierSet(ShenandoahHeap* heap) :
   _satb_mark_queue_buffer_allocator("SATB Buffer Allocator", ShenandoahSATBBufferSize),
   _satb_mark_queue_set(&_satb_mark_queue_buffer_allocator)
 {
-  assert(heap->mode()->is_generational() == (heap->card_table() != NULL),
-         "the heap's having a card table does not match the GC mode being generational");
+  assert(heap->card_table() != NULL, "The card table is missing");
 }
 
 ShenandoahBarrierSetAssembler* ShenandoahBarrierSet::assembler() {

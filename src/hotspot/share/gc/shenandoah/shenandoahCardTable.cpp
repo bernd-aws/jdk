@@ -25,9 +25,14 @@
 #include "precompiled.hpp"
 #include "gc/shared/memset_with_concurrent_readers.hpp"
 #include "gc/shenandoah/shenandoahCardTable.hpp"
+#include "gc/shenandoah/shenandoahHeap.hpp"
 #include "logging/log.hpp"
 
 void ShenandoahCardTable::initialize() {
   CardTable::initialize();
   resize_covered_region(_whole_heap);
+}
+
+bool ShenandoahCardTable::is_in_young(oop obj) const {
+   return ShenandoahHeap::heap()->is_in_young(obj);
 }
